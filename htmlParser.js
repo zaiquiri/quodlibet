@@ -13,37 +13,70 @@ function eof() {
   return position >= input.length;
 }
 
-function next() {
+function pop() {
   return input.charAt(position++);
 }
 
-function nextWhile(condition) {
+function popWhile(condition) {
   var result = "";
   while (!eof() && condition(this.peek)) {
-    result += this.next;
+    result += this.pop;
   }
   return result;
 }
 
 function eatWhitespace() {
   var isWhitespace = function(item) {
-    return /\s/.test(item)
+    return /[\s\n\t]*/.test(item)
   }
-  this.nextWhile(isWhitespace);
+  this.popWhile(isWhitespace);
 }
 
 function parseName() {
   var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9]/.test(item)
+    return /[a-zA-Z0-9]*/.test(item)
   }
-  return nextWhile(isAlphanumeric);
+  return popWhile(isAlphanumeric);
+}
+
+function parseNodes() {
+  var nodes = [];
+  while (!this.eof() && !this.startsWith("</")){
+    nodes.push(this.parseNode())
+  } 
+  return nodes;
 }
 
 function parseNode() {
-  if (/</.test(this.peek)){
-    this.parseElement();
-  else {
-    this.parseText();
+  if (/</.test(this.peek()){
+    return this.parseElement()
+  } else {
+    return this.parseText()
+  }
+}
+
+function parseText() {
+  return new Text(parseName())
+}
+
+function parseElement {
+  var elementName = ""
+  var children = []
+  var attributes = {}
+
+  this.pop() // '<'
+  elementName = this.parseName()
+  this.pop() // '>'
+
+  attributes = this.parseAttrs()
+  children = this.parseNodes()
+
+  this.pop() // '<'
+  this.pop() // '/'
+  this.parseName()
+  this.pop() // '>'
+
+  return new Element(elementName, attributes, children); 
 }
 
 HtmlParser.prototype = {
