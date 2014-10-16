@@ -79,6 +79,14 @@ function parseElement {
   return new Element(elementName, attributes, children); 
 }
 
+function parseInput() {
+  var nodes = this.parseNodes()
+  if (nodes.length === 1) {
+    return nodes;
+  else
+    //create html root element and add nodes as children
+}
+
 HtmlParser.prototype = {
   getNodeTree: function() {
     return this.parseInput();
