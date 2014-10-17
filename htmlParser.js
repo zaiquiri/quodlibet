@@ -1,3 +1,4 @@
+var Element = require('./element.js');
 var input = "";
 var position = 0;
 
@@ -27,16 +28,20 @@ function popWhile(condition) {
 
 function eatWhitespace() {
   var isWhitespace = function(item) {
-    return /[\s\n\t]*/.test(item)
+    return /[\s\n\t]/.test(item)
   }
   this.popWhile(isWhitespace);
 }
 
-function parseName() {
+function parseText() {
   var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9]*/.test(item)
+    return /[a-zA-Z0-9]/.test(item)
   }
   return popWhile(isAlphanumeric);
+}
+
+function startsWith(string) {
+  return string === this.input.substring(this.position, string.length);
 }
 
 function parseNodes() {
@@ -55,36 +60,55 @@ function parseNode() {
   }
 }
 
-function parseText() {
-  return new Text(parseName())
-}
-
 function parseElement {
   var elementName = ""
   var children = []
   var attributes = {}
 
   this.pop() // '<'
-  elementName = this.parseName()
+  elementName = this.parseText()
+  attributes = this.parseAttrs()
   this.pop() // '>'
 
-  attributes = this.parseAttrs()
   children = this.parseNodes()
 
   this.pop() // '<'
   this.pop() // '/'
-  this.parseName()
+  this.parseText()
   this.pop() // '>'
 
   return new Element(elementName, attributes, children); 
+}
+
+function parseAttrs() {
+  var attrs =[]; 
+  this.eatWhitespace();
+  while (!/>/.test(this.peek())) {
+    attrs.push(this.parseAttr());
+  }
+  return attrs;
+}
+
+function parseAttr() {
+  this.eatWhitespace();
+  var name = this.parseText();
+  this.pop() // '='
+  this.pop() // '"'
+  var quotesHaveNotEnded = function(item) {
+    return !/"/.test(item)
+  }
+  var value = popWhile(quotesHaveNotEnded);
+  this.pop() // '"'
+  return {name:value}
 }
 
 function parseInput() {
   var nodes = this.parseNodes()
   if (nodes.length === 1) {
     return nodes;
-  else
-    //create html root element and add nodes as children
+  } else {
+    return new Element("html", null, nodes);
+  } 
 }
 
 HtmlParser.prototype = {
