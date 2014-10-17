@@ -69,9 +69,11 @@ function parseElement {
   elementName = this.parseText()
   attributes = this.parseAttrs()
   this.pop() // '>'
+  this.eatWhitespace()
 
   children = this.parseNodes()
 
+  this.eatWhitespace()
   this.pop() // '<'
   this.pop() // '/'
   this.parseText()
