@@ -53,14 +53,14 @@ function parseNodes() {
 }
 
 function parseNode() {
-  if (/</.test(this.peek()){
+  if (/</.test(this.peek())){
     return this.parseElement()
   } else {
     return this.parseText()
   }
 }
 
-function parseElement {
+function parseElement() {
   var elementName = ""
   var children = []
   var attributes = {}
@@ -107,7 +107,7 @@ function parseAttr() {
 function parseInput() {
   var nodes = this.parseNodes()
   if (nodes.length === 1) {
-    return nodes;
+    return nodes[0];
   } else {
     return new Element("html", null, nodes);
   } 
