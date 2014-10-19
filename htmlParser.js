@@ -24,7 +24,7 @@ function parseInput() {
 function parseNodes() {
   var nodes = []
   while (!eof() && !startsWith("</")){
-    console.log(input.text.substring(input.position))
+    eatWhitespace()
     nodes.push(parseNode())
   }
   return nodes
@@ -46,7 +46,9 @@ function parseElement() {
 
   Assert.that(pop() === '<', "line 46")
   elementName = parseText()
+  eatWhitespace()
   attributes = parseAttrs()
+  eatWhitespace()
   Assert.that(pop() === '>', "line 49")
   eatWhitespace()
 
@@ -57,13 +59,13 @@ function parseElement() {
   Assert.that(pop() === '/', "line 56")
   parseText()
   Assert.that(pop() === '>', "line 58")
+  eatWhitespace()
 
   return new Element(elementName, attributes, children); 
 }
 
 function parseAttrs() {
   var attrs =[]
-  eatWhitespace()
   while (!/>/.test(peek())) {
     attrs.push(parseAttr())
   }
@@ -71,15 +73,13 @@ function parseAttrs() {
 }
 
 function parseAttr() {
-  eatWhitespace()
   var name = parseText()
   Assert.that(pop() === '=', "line 74")
   Assert.that(pop() === '"', "line 76")
-  var quotesHaveNotEnded = function(item) {
-    return !/"/.test(item)
-  }
-  var value = popWhile(quotesHaveNotEnded)
+  var isNotEndingQuote = function(item) { return !/"/.test(item) }
+  var value = popWhile(isNotEndingQuote)
   Assert.that(pop() === '"', "line 81")
+  eatWhitespace()
   return {name:value}
 }
 
@@ -114,7 +114,7 @@ function eatWhitespace() {
 
 function parseText() {
   var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9]/.test(item)
+    return /[a-zA-Z0-9\-]/.test(item)
   }
   return popWhile(isAlphanumeric)
 }
