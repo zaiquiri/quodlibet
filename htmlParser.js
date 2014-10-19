@@ -83,7 +83,7 @@ function parseAttr() {
   return {"name":name, "value":value}
 }
 
-// CANDIDATE FUNCTIONS FOR PARSER CLASS
+// FUNCTIONS FOR PARSER CLASS
 
 function peek() {
   return input.text.charAt(input.position)
