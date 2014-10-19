@@ -1,62 +1,41 @@
-var Element = require('./element.js');
-var input = "";
-var position = 0;
+var Element = require('./element.js')
+var Assert = require('./assert.js')
 
-function HtmlParser(input) {
-  this.input = input;
+var input = {
+  text : "",
+  position : 0
 }
 
-function peek() {
-  return input.charAt(position);
+exports.createNodeTreeFor = function(text) {
+  input.text = text
+  input.position = 0
+  return parseInput()
 }
 
-function eof() {
-  return position >= input.length;
-}
-
-function pop() {
-  return input.charAt(position++);
-}
-
-function popWhile(condition) {
-  var result = "";
-  while (!eof() && condition(this.peek)) {
-    result += this.pop;
+function parseInput() {
+  var nodes = parseNodes()
+  if (nodes.length === 1) {
+    return nodes[0]
+  } else {
+    return new Element("html", null, nodes)
   }
-  return result;
-}
-
-function eatWhitespace() {
-  var isWhitespace = function(item) {
-    return /[\s\n\t]/.test(item)
-  }
-  this.popWhile(isWhitespace);
-}
-
-function parseText() {
-  var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9]/.test(item)
-  }
-  return popWhile(isAlphanumeric);
-}
-
-function startsWith(string) {
-  return string === this.input.substring(this.position, string.length);
 }
 
 function parseNodes() {
-  var nodes = [];
-  while (!this.eof() && !this.startsWith("</")){
-    nodes.push(this.parseNode())
-  } 
-  return nodes;
+  var nodes = []
+  while (!eof() && !startsWith("</")){
+    console.log(input.text.substring(input.position))
+    nodes.push(parseNode())
+  }
+  return nodes
 }
 
 function parseNode() {
-  if (/</.test(this.peek())){
-    return this.parseElement()
+  if (/</.test(peek())){
+    return parseElement()
   } else {
-    return this.parseText()
+    var text = parseText();
+    return text 
   }
 }
 
@@ -65,58 +44,89 @@ function parseElement() {
   var children = []
   var attributes = {}
 
-  this.pop() // '<'
-  elementName = this.parseText()
-  attributes = this.parseAttrs()
-  this.pop() // '>'
-  this.eatWhitespace()
+  Assert.that(pop() === '<', "line 46")
+  elementName = parseText()
+  attributes = parseAttrs()
+  Assert.that(pop() === '>', "line 49")
+  eatWhitespace()
 
-  children = this.parseNodes()
+  children = parseNodes()
 
-  this.eatWhitespace()
-  this.pop() // '<'
-  this.pop() // '/'
-  this.parseText()
-  this.pop() // '>'
+  eatWhitespace()
+  Assert.that(pop() === '<', "line 55")
+  Assert.that(pop() === '/', "line 56")
+  parseText()
+  Assert.that(pop() === '>', "line 58")
 
   return new Element(elementName, attributes, children); 
 }
 
 function parseAttrs() {
-  var attrs =[]; 
-  this.eatWhitespace();
-  while (!/>/.test(this.peek())) {
-    attrs.push(this.parseAttr());
+  var attrs =[]
+  eatWhitespace()
+  while (!/>/.test(peek())) {
+    attrs.push(parseAttr())
   }
-  return attrs;
+  return attrs
 }
 
 function parseAttr() {
-  this.eatWhitespace();
-  var name = this.parseText();
-  this.pop() // '='
-  this.pop() // '"'
+  eatWhitespace()
+  var name = parseText()
+  Assert.that(pop() === '=', "line 74")
+  Assert.that(pop() === '"', "line 76")
   var quotesHaveNotEnded = function(item) {
     return !/"/.test(item)
   }
-  var value = popWhile(quotesHaveNotEnded);
-  this.pop() // '"'
+  var value = popWhile(quotesHaveNotEnded)
+  Assert.that(pop() === '"', "line 81")
   return {name:value}
 }
 
-function parseInput() {
-  var nodes = this.parseNodes()
-  if (nodes.length === 1) {
-    return nodes[0];
-  } else {
-    return new Element("html", null, nodes);
-  } 
+// CANDIDATE FUNCTIONS FOR PARSER CLASS
+
+function peek() {
+  return input.text.charAt(input.position)
 }
 
-HtmlParser.prototype = {
-  getNodeTree: function() {
-    return this.parseInput();
+function eof() {
+  return input.position >= input.text.length
+}
+
+function pop() {
+  return input.text.charAt(input.position++)
+}
+
+function popWhile(condition) {
+  var result = ""
+  while (!eof() && condition(peek())) {
+    result += pop()
+  }
+  return result
+}
+
+function eatWhitespace() {
+  var isWhitespace = function(item) {
+    return /[\s\n\t]/.test(item)
+  }
+  popWhile(isWhitespace)
+}
+
+function parseText() {
+  var isAlphanumeric = function(item) {
+    return /[a-zA-Z0-9]/.test(item)
+  }
+  return popWhile(isAlphanumeric)
+}
+
+function startsWith(string) {
+  var begin = input.position
+  var end = input.position + string.length
+  if (end > input.text.length){
+    return false
+  }
+  else{
+    return string === input.text.substring(begin, end)
   }
 }
 
-module.exports = HtmlParser;

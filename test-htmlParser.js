@@ -1,9 +1,7 @@
 var HtmlParser = require('./htmlParser.js')
 var fs = require('fs')
 
-var file = fs.readFileSync('./testPage.html', "utf8")
-
-var parser = new HtmlParser(file)
-var nodeTree = parser.getNodeTree()
+var htmlText = fs.readFileSync('./testPage.html', "utf8")
+var nodeTree = HtmlParser.createNodeTreeFor(htmlText)
 
 console.log(nodeTree)
