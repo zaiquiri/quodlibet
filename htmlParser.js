@@ -80,7 +80,7 @@ function parseAttr() {
   var value = popWhile(isNotEndingQuote)
   Assert.that(pop() === '"', "line 81")
   eatWhitespace()
-  return {name:value}
+  return {"name":name, "value":value}
 }
 
 // CANDIDATE FUNCTIONS FOR PARSER CLASS
