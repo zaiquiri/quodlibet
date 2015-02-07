@@ -1,5 +1,5 @@
 exports.that = function(condition, message) {
-  typeof(message) === 'undefined' ? "assert failed" : message
+  message = message || "assert failed"
   if (!condition) {
     throw message
   }
