@@ -1,132 +1,132 @@
-var Element = require('./element.js')
-var Assert = require('./assert.js')
+var Element = require('./element.js');
+var Assert = require('./assert.js');
 
 var input = {
   text : "",
   position : 0
-}
+};
 
 exports.createNodeTreeFor = function(text) {
-  input.text = text
-  input.position = 0
-  return parseInput()
-}
+  input.text = text;
+  input.position = 0;
+  return parseInput();
+};
 
 function parseInput() {
-  var nodes = parseNodes()
+  var nodes = parseNodes();
   if (nodes.length === 1) {
-    return nodes[0]
+    return nodes[0];
   } else {
-    return new Element("html", null, nodes)
+    return new Element("html", null, nodes);
   }
 }
 
 function parseNodes() {
-  var nodes = []
+  var nodes = [];
   while (!eof() && !startsWith("</")){
-    eatWhitespace()
-    nodes.push(parseNode())
+    eatWhitespace();
+    nodes.push(parseNode());
   }
-  return nodes
+  return nodes;
 }
 
 function parseNode() {
   if (/</.test(peek())){
-    return parseElement()
+    return parseElement();
   } else {
     var text = parseText();
-    return text 
+    return text ;
   }
 }
 
 function parseElement() {
-  var elementName = ""
-  var children = []
-  var attributes = {}
+  var elementName = "";
+  var children = [];
+  var attributes = {};
 
-  Assert.that(pop() === '<', "line 46")
-  elementName = parseText()
-  eatWhitespace()
-  attributes = parseAttrs()
-  eatWhitespace()
-  Assert.that(pop() === '>', "line 49")
-  eatWhitespace()
+  Assert.that(pop() === '<');
+  elementName = parseText();
+  eatWhitespace();
+  attributes = parseAttrs();
+  eatWhitespace();
+  Assert.that(pop() === '>');
+  eatWhitespace();
 
-  children = parseNodes()
+  children = parseNodes();
 
-  eatWhitespace()
-  Assert.that(pop() === '<', "line 55")
-  Assert.that(pop() === '/', "line 56")
-  parseText()
-  Assert.that(pop() === '>', "line 58")
-  eatWhitespace()
+  eatWhitespace();
+  Assert.that(pop() === '<');
+  Assert.that(pop() === '/');
+  parseText();
+  Assert.that(pop() === '>');
+  eatWhitespace();
 
   return new Element(elementName, attributes, children); 
 }
 
 function parseAttrs() {
-  var attrs =[]
+  var attrs =[];
   while (!/>/.test(peek())) {
-    attrs.push(parseAttr())
+    attrs.push(parseAttr());
   }
-  return attrs
+  return attrs;
 }
 
 function parseAttr() {
-  var name = parseText()
-  Assert.that(pop() === '=', "line 74")
-  Assert.that(pop() === '"', "line 76")
-  var isNotEndingQuote = function(item) { return !/"/.test(item) }
-  var value = popWhile(isNotEndingQuote)
-  Assert.that(pop() === '"', "line 81")
-  eatWhitespace()
-  return {"name":name, "value":value}
+  var name = parseText();
+  Assert.that(pop() === '=');
+  Assert.that(pop() === '"');
+  var isNotEndingQuote = function(item) { return !/"/.test(item); };
+  var value = popWhile(isNotEndingQuote);
+  Assert.that(pop() === '"');
+  eatWhitespace();
+  return {"name":name, "value":value};
 }
 
 // CANDIDATE FUNCTIONS FOR PARSER CLASS
 
 function peek() {
-  return input.text.charAt(input.position)
+  return input.text.charAt(input.position);
 }
 
 function eof() {
-  return input.position >= input.text.length
+  return input.position >= input.text.length;
 }
 
 function pop() {
-  return input.text.charAt(input.position++)
+  return input.text.charAt(input.position++);
 }
 
 function popWhile(condition) {
-  var result = ""
+  var result = "";
   while (!eof() && condition(peek())) {
-    result += pop()
+    result += pop();
   }
-  return result
+  return result;
 }
 
 function eatWhitespace() {
   var isWhitespace = function(item) {
-    return /[\s\n\t]/.test(item)
-  }
-  popWhile(isWhitespace)
+    return /[\s\n\t]/.test(item);
+  };
+  popWhile(isWhitespace);
 }
 
 function parseText() {
   var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9\-]/.test(item)
-  }
-  return popWhile(isAlphanumeric)
+    return /[a-zA-Z0-9\-]/.test(item);
+  };
+  return popWhile(isAlphanumeric);
 }
 
 function startsWith(string) {
-  var begin = input.position
-  var end = input.position + string.length
+  var begin = input.position;
+  var end = input.position + string.length;
   if (end > input.text.length){
-    return false
+    return false;
   }
   else{
-    return string === input.text.substring(begin, end)
+    return string === input.text.substring(begin, end);
   }
 }
 
