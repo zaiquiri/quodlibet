@@ -1,14 +1,11 @@
 var Element = require('./element.js');
 var Assert = require('./assert.js');
+var Parser = require('./parser.js');
 
-var input = {
-  text : "",
-  position : 0
-};
+var input;
 
 exports.createNodeTreeFor = function(text) {
-  input.text = text;
-  input.position = 0;
+  input = new Parser(text);
   return parseInput();
 };
 
@@ -23,18 +20,18 @@ function parseInput() {
 
 function parseNodes() {
   var nodes = [];
-  while (!eof() && !startsWith("</")){
-    eatWhitespace();
+  while (!input.eof() && !input.startsWith("</")){
+    input.eatWhitespace();
     nodes.push(parseNode());
   }
   return nodes;
 }
 
 function parseNode() {
-  if (/</.test(peek())){
+  if (/</.test(input.peek())){
     return parseElement();
   } else {
-    var text = parseText();
+    var text = input.parseText();
     return text ;
   }
 }
@@ -44,89 +41,41 @@ function parseElement() {
   var children = [];
   var attributes = {};
 
-  Assert.that(pop() === '<');
-  elementName = parseText();
-  eatWhitespace();
+  Assert.that(input.pop() === '<');
+  elementName = input.parseText();
+  input.eatWhitespace();
   attributes = parseAttrs();
-  eatWhitespace();
-  Assert.that(pop() === '>');
-  eatWhitespace();
+  input.eatWhitespace();
+  Assert.that(input.pop() === '>');
+  input.eatWhitespace();
 
   children = parseNodes();
 
-  eatWhitespace();
-  Assert.that(pop() === '<');
-  Assert.that(pop() === '/');
-  parseText();
-  Assert.that(pop() === '>');
-  eatWhitespace();
+  input.eatWhitespace();
+  Assert.that(input.pop() === '<');
+  Assert.that(input.pop() === '/');
+  input.parseText();
+  Assert.that(input.pop() === '>');
+  input.eatWhitespace();
 
-  return new Element(elementName, attributes, children); 
+  return new Element(elementName, attributes, children);
 }
 
 function parseAttrs() {
   var attrs =[];
-  while (!/>/.test(peek())) {
+  while (!/>/.test(input.peek())) {
     attrs.push(parseAttr());
   }
   return attrs;
 }
 
 function parseAttr() {
-  var name = parseText();
-  Assert.that(pop() === '=');
-  Assert.that(pop() === '"');
+  var name = input.parseText();
+  Assert.that(input.pop() === '=');
+  Assert.that(input.pop() === '"');
   var isNotEndingQuote = function(item) { return !/"/.test(item); };
-  var value = popWhile(isNotEndingQuote);
-  Assert.that(pop() === '"');
-  eatWhitespace();
+  var value = input.popWhile(isNotEndingQuote);
+  Assert.that(input.pop() === '"');
+  input.eatWhitespace();
   return {"name":name, "value":value};
 }
-
-// CANDIDATE FUNCTIONS FOR PARSER CLASS
-
-function peek() {
-  return input.text.charAt(input.position);
-}
-
-function eof() {
-  return input.position >= input.text.length;
-}
-
-function pop() {
-  return input.text.charAt(input.position++);
-}
-
-function popWhile(condition) {
-  var result = "";
-  while (!eof() && condition(peek())) {
-    result += pop();
-  }
-  return result;
-}
-
-function eatWhitespace() {
-  var isWhitespace = function(item) {
-    return /[\s\n\t]/.test(item);
-  };
-  popWhile(isWhitespace);
-}
-
-function parseText() {
-  var isAlphanumeric = function(item) {
-    return /[a-zA-Z0-9\-]/.test(item);
-  };
-  return popWhile(isAlphanumeric);
-}
-
-function startsWith(string) {
-  var begin = input.position;
-  var end = input.position + string.length;
-  if (end > input.text.length){
-    return false;
-  }
-  else{
-    return string === input.text.substring(begin, end);
-  }
-}
-
