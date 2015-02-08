@@ -12,13 +12,48 @@ describe("htmlParser", function(){
         '</div>' +
       '</html>';
 
-  var correctNodeTree = {"tagName":"html","attributes":[],"children":[{"tagName":"div","attributes":[{"name":"class","value":"myClass"}],"children":[{"tagName":"p","attributes":[],"children":["someText"]},{"tagName":"p","attributes":[],"children":["some-more-text"]}]},{"tagName":"div","attributes":[{"name":"id","value":"silent-div"},{"name":"style","value":"some-stylIn"}],"children":[]},{"tagName":"div","attributes":[{"name":"id","value":"clara"},{"name":"class","value":"special-things"}],"children":[{"tagName":"div","attributes":[],"children":[]}]}]};
+    var correctNodeTree = {
+      "tagName":"html",
+      "attributes":[],
+      "children":[{
+          "tagName":"div",
+          "attributes":[{"name":"class","value":"myClass"}],
+          "children":[{
+              "tagName":"p",
+              "attributes":[],
+              "children":["someText"]
+            },
+            {
+              "tagName":"p",
+              "attributes":[],
+              "children":["some-more-text"]
+            }
+          ]
+        },
+        {
+          "tagName":"div",
+          "attributes":[
+            {"name":"id","value":"silent-div"},
+            {"name":"style","value":"some-stylIn"}
+          ],
+          "children":[]
+        },
+        {
+          "tagName":"div",
+          "attributes":[{"name":"id","value":"clara"},{"name":"class","value":"special-things"}],
+          "children":[{
+            "tagName":"div",
+            "attributes":[],
+            "children":[]
+          }]
+        }
+      ]
+    };
 
-  var HtmlParser = require('../src/htmlParser.js');
-  var nodeTree = HtmlParser.createNodeTreeFor(html);
+    var HtmlParser = require('../src/htmlParser.js');
+    var nodeTree = HtmlParser.createNodeTreeFor(html);
 
-  expect(nodeTree).toEqual(correctNodeTree);
-
+    expect(nodeTree).toEqual(correctNodeTree);
 
   });
 
