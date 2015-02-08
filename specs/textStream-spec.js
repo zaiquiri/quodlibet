@@ -70,6 +70,12 @@ describe("textStream", function() {
       expect(ts.peek()).toBe('N');
     });
 
+    it("should count new lines and tabs as whitespace", function(){
+      ts = new TextStream(" \n\tNot a space");
+      ts.eatWhitespace();
+      expect(ts.peek()).toBe('N');
+    });
+
     it("Shouldn't consume anything if there's no whitespace", function(){
       ts = new TextStream("Some raw text");
       ts.eatWhitespace();

@@ -1,19 +1,19 @@
-module.exports = Parser;
+module.exports = TextStream;
 
-function Parser(text, start){
+function TextStream(text, start){
   this.input = text;
   this.position = start || 0;
 }
 
-Parser.prototype.peek = function() {
+TextStream.prototype.peek = function() {
   return this.input.charAt(this.position);
 };
 
-Parser.prototype.eof = function() {
+TextStream.prototype.eof = function() {
   return this.position >= this.input.length;
 };
 
-Parser.prototype.pop = function() {
+TextStream.prototype.pop = function() {
   if (this.eof()){
     throw new RangeError("Nothing more to pop!");
   } else{
@@ -21,7 +21,7 @@ Parser.prototype.pop = function() {
   }
 };
 
-Parser.prototype.popWhile = function(condition) {
+TextStream.prototype.popWhile = function(condition) {
   var result = "";
   while (!this.eof() && condition(this.peek())) {
     result += this.pop();
@@ -29,21 +29,21 @@ Parser.prototype.popWhile = function(condition) {
   return result;
 };
 
-Parser.prototype.eatWhitespace = function() {
+TextStream.prototype.eatWhitespace = function() {
   var isWhitespace = function(item) {
     return /[\s\n\t]/.test(item);
   };
   this.popWhile(isWhitespace);
 };
 
-Parser.prototype.parseText = function() {
+TextStream.prototype.parseText = function() {
   var isAlphanumeric = function(item) {
     return /[a-zA-Z0-9\-]/.test(item);
   };
   return this.popWhile(isAlphanumeric);
 };
 
-Parser.prototype.startsWith = function(string) {
+TextStream.prototype.startsWith = function(string) {
   var begin = this.position;
   var end = this.position + string.length;
   if (end > this.input.length){
