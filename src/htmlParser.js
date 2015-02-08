@@ -1,11 +1,11 @@
 var Element = require('./element.js');
 var Assert = require('./assert.js');
-var Parser = require('./parser.js');
+var TextStream = require('./textStream.js');
 
-var input;
+var ts;
 
 exports.createNodeTreeFor = function(text) {
-  input = new Parser(text);
+  ts = new TextStream(text);
   return parseHTML();
 };
 
@@ -20,18 +20,18 @@ function parseHTML() {
 
 function parseNodes() {
   var nodes = [];
-  while (!input.eof() && !input.startsWith("</")){
-    input.eatWhitespace();
+  while (!ts.eof() && !ts.startsWith("</")){
+    ts.eatWhitespace();
     nodes.push(parseNode());
   }
   return nodes;
 }
 
 function parseNode() {
-  if (/</.test(input.peek())){
+  if (/</.test(ts.peek())){
     return parseElement();
   } else {
-    var text = input.parseText();
+    var text = ts.parseText();
     return text ;
   }
 }
@@ -41,41 +41,41 @@ function parseElement() {
   var children = [];
   var attributes = {};
 
-  Assert.that(input.pop() === '<');
-  elementName = input.parseText();
-  input.eatWhitespace();
+  Assert.that(ts.pop() === '<');
+  elementName = ts.parseText();
+  ts.eatWhitespace();
   attributes = parseAttrs();
-  input.eatWhitespace();
-  Assert.that(input.pop() === '>');
-  input.eatWhitespace();
+  ts.eatWhitespace();
+  Assert.that(ts.pop() === '>');
+  ts.eatWhitespace();
 
   children = parseNodes();
 
-  input.eatWhitespace();
-  Assert.that(input.pop() === '<');
-  Assert.that(input.pop() === '/');
-  input.parseText();
-  Assert.that(input.pop() === '>');
-  input.eatWhitespace();
+  ts.eatWhitespace();
+  Assert.that(ts.pop() === '<');
+  Assert.that(ts.pop() === '/');
+  ts.parseText();
+  Assert.that(ts.pop() === '>');
+  ts.eatWhitespace();
 
   return new Element(elementName, attributes, children);
 }
 
 function parseAttrs() {
   var attrs =[];
-  while (!/>/.test(input.peek())) {
+  while (!/>/.test(ts.peek())) {
     attrs.push(parseAttr());
   }
   return attrs;
 }
 
 function parseAttr() {
-  var name = input.parseText();
-  Assert.that(input.pop() === '=');
-  Assert.that(input.pop() === '"');
+  var name = ts.parseText();
+  Assert.that(ts.pop() === '=');
+  Assert.that(ts.pop() === '"');
   var isNotEndingQuote = function(item) { return !/"/.test(item); };
-  var value = input.popWhile(isNotEndingQuote);
-  Assert.that(input.pop() === '"');
-  input.eatWhitespace();
+  var value = ts.popWhile(isNotEndingQuote);
+  Assert.that(ts.pop() === '"');
+  ts.eatWhitespace();
   return {"name":name, "value":value};
 }
