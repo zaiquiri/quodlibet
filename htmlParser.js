@@ -6,10 +6,10 @@ var input;
 
 exports.createNodeTreeFor = function(text) {
   input = new Parser(text);
-  return parseInput();
+  return parseHTML();
 };
 
-function parseInput() {
+function parseHTML() {
   var nodes = parseNodes();
   if (nodes.length === 1) {
     return nodes[0];
