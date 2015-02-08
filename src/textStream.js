@@ -14,7 +14,11 @@ Parser.prototype.eof = function() {
 };
 
 Parser.prototype.pop = function() {
-  return this.input.charAt(this.position++);
+  if (this.eof()){
+    throw new RangeError("Nothing more to pop!");
+  } else{
+    return this.input.charAt(this.position++);
+  }
 };
 
 Parser.prototype.popWhile = function(condition) {
