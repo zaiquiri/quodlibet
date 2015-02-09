@@ -1,0 +1,30 @@
+{
+  "name": "quodlibet",
+  "description": "A spimple browser engine written in javascript",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "version": "0.1.0",
+  "main": "Gruntfile.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "jasmine-node": "^1.14.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zaiquiri/quodlibet.git"
+  },
+  "author": "Zach Lindberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zaiquiri/quodlibet/issues"
+  },
+  "homepage": "https://github.com/zaiquiri/quodlibet"
+}
