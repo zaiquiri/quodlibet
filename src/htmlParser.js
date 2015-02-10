@@ -1,81 +1,79 @@
 var Element = require('./element.js');
 var Assert = require('./assert.js');
-var TextStream = require('./textStream.js');
 
-var ts;
+module.exports = HtmlParser;
 
-exports.createNodeTreeFor = function(text) {
-  ts = new TextStream(text);
-  return parseHTML();
-};
+function HtmlParser(textStream) {
+  this.ts = textStream;
+}
 
-function parseHTML() {
-  var nodes = parseNodes();
+HtmlParser.prototype.createNodeTree = function() {
+  var nodes = this.parseNodes();
   if (nodes.length === 1) {
     return nodes[0];
   } else {
     return new Element("html", null, nodes);
   }
-}
+};
 
-function parseNodes() {
+HtmlParser.prototype.parseNodes = function() {
   var nodes = [];
-  while (!ts.eof() && !ts.startsWith("</")){
-    ts.eatWhitespace();
-    nodes.push(parseNode());
+  while (!this.ts.eof() && !this.ts.startsWith("</")){
+    this.ts.eatWhitespace();
+    nodes.push(this.parseNode());
   }
   return nodes;
-}
+};
 
-function parseNode() {
-  if (/</.test(ts.peek())){
-    return parseElement();
+HtmlParser.prototype.parseNode = function() {
+  if (/</.test(this.ts.peek())){
+    return this.parseElement();
   } else {
-    var text = ts.parseText();
+    var text = this.ts.parseText();
     return text ;
   }
-}
+};
 
-function parseElement() {
+HtmlParser.prototype.parseElement = function() {
   var elementName = "";
   var children = [];
   var attributes = {};
 
-  Assert.that(ts.pop() === '<');
-  elementName = ts.parseText();
-  ts.eatWhitespace();
-  attributes = parseAttrs();
-  ts.eatWhitespace();
-  Assert.that(ts.pop() === '>');
-  ts.eatWhitespace();
+  Assert.that(this.ts.pop() === '<');
+  elementName = this.ts.parseText();
+  this.ts.eatWhitespace();
+  attributes = this.parseAttrs();
+  this.ts.eatWhitespace();
+  Assert.that(this.ts.pop() === '>');
+  this.ts.eatWhitespace();
 
-  children = parseNodes();
+  children = this.parseNodes();
 
-  ts.eatWhitespace();
-  Assert.that(ts.pop() === '<');
-  Assert.that(ts.pop() === '/');
-  ts.parseText();
-  Assert.that(ts.pop() === '>');
-  ts.eatWhitespace();
+  this.ts.eatWhitespace();
+  Assert.that(this.ts.pop() === '<');
+  Assert.that(this.ts.pop() === '/');
+  this.ts.parseText();
+  Assert.that(this.ts.pop() === '>');
+  this.ts.eatWhitespace();
 
   return new Element(elementName, attributes, children);
-}
+};
 
-function parseAttrs() {
+HtmlParser.prototype.parseAttrs = function() {
   var attrs =[];
-  while (!/>/.test(ts.peek())) {
-    attrs.push(parseAttr());
+  while (!/>/.test(this.ts.peek())) {
+    attrs.push(this.parseAttr());
   }
   return attrs;
-}
+};
 
-function parseAttr() {
-  var name = ts.parseText();
-  Assert.that(ts.pop() === '=');
-  Assert.that(ts.pop() === '"');
+HtmlParser.prototype.parseAttr = function() {
+  var name = this.ts.parseText();
+  Assert.that(this.ts.pop() === '=');
+  Assert.that(this.ts.pop() === '"');
   var isNotEndingQuote = function(item) { return !/"/.test(item); };
-  var value = ts.popWhile(isNotEndingQuote);
-  Assert.that(ts.pop() === '"');
-  ts.eatWhitespace();
+  var value = this.ts.popWhile(isNotEndingQuote);
+  Assert.that(this.ts.pop() === '"');
+  this.ts.eatWhitespace();
   return {"name":name, "value":value};
-}
+};

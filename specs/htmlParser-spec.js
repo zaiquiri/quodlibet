@@ -51,9 +51,11 @@ describe("htmlParser", function(){
     };
 
     var HtmlParser = require('../src/htmlParser.js');
-    var nodeTree = HtmlParser.createNodeTreeFor(html);
+    var TextStream = require('../src/textStream.js');
+    var ts = new TextStream(html);
+    var htmlP = new HtmlParser(ts);
 
-    expect(nodeTree).toEqual(correctNodeTree);
+    expect(htmlP.createNodeTree()).toEqual(correctNodeTree);
 
   });
 
