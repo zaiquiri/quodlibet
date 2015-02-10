@@ -1,6 +1,6 @@
 exports.that = function(condition, message) {
   message = message || "assert failed";
   if (!condition) {
-    throw message + new Error().stack.match(/^.*\n.*\n(.*)/)[1];
+    throw message + " " + new Error().stack.match(/^.*\n.*\n\s*(.*)/)[1];
   }
 };
