@@ -63,6 +63,22 @@ describe("textStream", function() {
     });
   });
 
+  describe("popUntil", function() {
+    it("should return string until condition is true", function(){
+      ts = new TextStream("Some raw text");
+      var isASpace = function(previous, next){return /\s/.test(next);};
+      expect(ts.popUntil(isASpace)).toBe("Some");
+    });
+
+    it("should return entire string if condition is never true", function(){
+      var rawText = "Some raw text";
+      ts = new TextStream(rawText);
+      var isZ = function(previous, next){return /z/.test(next);};
+      expect(ts.popUntil(isZ)).toBe(rawText);
+    });
+    
+  });
+
   describe("eatWhitespace", function(){
     it("should consume text until the next character is not a space", function(){
       ts = new TextStream("       Not a space");

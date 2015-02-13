@@ -29,6 +29,16 @@ TextStream.prototype.popWhile = function(condition) {
   return result;
 };
 
+TextStream.prototype.popUntil = function(condition) {
+  var result = "";
+  var previous = null;
+  while (!this.eof() && !condition(previous, this.peek())) {
+    previous = this.pop();
+    result += previous;
+  }
+  return result;
+};
+
 TextStream.prototype.eatWhitespace = function() {
   var isWhitespace = function(item) {
     return /[\s\n\t]/.test(item);
