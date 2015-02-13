@@ -6,10 +6,10 @@ describe("cssParser", function(){
     var css = 'h1 { font-size: 12px; }';
     var textStream = new TextStream(css);
     var selectorParser = {
-      parse: function(){ return [{tagName: "h1"}]; }
+      getSelectorsFrom: function(){ return [{tagName: "h1"}]; }
     };
     var declerationParser = {
-      parse: function(){ return [{name:"font-size", value: "12px"}]; }
+      getDeclerationsFrom: function(){ return [{name:"font-size", value: "12px"}]; }
     };
     var cssP = new CssParser(textStream, selectorParser, declerationParser);
     var rules = [

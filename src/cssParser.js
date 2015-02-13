@@ -8,20 +8,13 @@ function CssParser(textStream, selectorParser, declerationParser) {
 }
 
 CssParser.prototype.createRules = function(){
-  var rule;
+  var wasACloseBracket = function(previous){return /}/.test(previous);};
   var rules = [];
-  var previous;
-  var isNotTheEndOfARule = function(current){
-    var wasCloseBracket =  !/}/.test(previous); 
-    previous = current;
-    return wasCloseBracket;
-  };
-
   while (!this.textStream.eof()){
-    ruleStream = new TextStream(this.textStream.popWhile(isNotTheEndOfARule));
+    var rule = new TextStream(this.textStream.popUntil(wasACloseBracket));
     rules.push({
-      selectors: this.selectorParser.parse(ruleStream),
-      declerations: this.declerationParser.parse(ruleStream)
+      selectors: this.selectorParser.getSelectorsFrom(rule),
+      declerations: this.declerationParser.getDeclerationsFrom(rule)
     });
   }
   return rules;
