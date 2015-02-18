@@ -4,32 +4,51 @@ describe("SelectorParser", function() {
 
   describe("getSelectorsFrom", function(){
 
-    xit("should return empty array for invalid rule", function() {
+    it("should parse only first rule when given multiple rules", function() {
+      var rule = '.nav h2 { display: none; } h1 { font-style: bold; }';
+      var selectorParser = new SelectorParser();
+
+      var selectors = selectorParser.getSelectorsFrom(rule);
+
+      expect(selectors).toEqual({tagName: ['h2'], 'class':['.nav'], id:[]} );
 
     });
 
-    it("should return array of one selector with tag name for one rule with tag name", function() {
+    it("should return selector with one tag name for rule with one tag name", function() {
       var rule = 'h1 { font-style: bold; }';
       var selectorParser = new SelectorParser();
 
       var selectors = selectorParser.getSelectorsFrom(rule);
 
-      expect(selectors).toEqual([{tagName: 'h1'}]);
+      expect(selectors).toEqual({tagName: ['h1'], 'class':[], id:[]} );
     });
 
-    xit("should return array of one selector with class for one rule with class", function() {
+    it("should return selector with one class for rule with one class", function() {
+      var rule = '.navbar { font-style: bold; }';
+      var selectorParser = new SelectorParser();
+
+      var selectors = selectorParser.getSelectorsFrom(rule);
+
+      expect(selectors).toEqual({tagName: [], "class": ['.navbar'], id:[]} );
+    });
+
+    it("should return selector with one id for rule with one id", function() {
+      var rule = '#infobox { font-style: bold; }';
+      var selectorParser = new SelectorParser();
+
+      var selectors = selectorParser.getSelectorsFrom(rule);
+
+      expect(selectors).toEqual({tagName: [], "class": [], id:['#infobox']} );
 
     });
 
-    xit("should return array of one selector with id for one rule with id", function() {
+    xit("should return selector for rule with multiple selectors", function() {
+      var rule = 'h1 h2 .navbar .sidebar .footer #infobox #icon { font-style: bold; }';
+      var selectorParser = new SelectorParser();
 
-    });
+      var selectors = selectorParser.getSelectorsFrom(rule);
 
-    xit("should return array of one selector for rule with multiple selectors", function() {
-
-    });
-
-    xit("should return array of selectors for multiple rules with multiple selectors", function() {
+      expect(selectors).toEqual({tagName: ['h1', 'h2'], "class": ['.navbar', 'sidebar', '.footer'], id:['#infobox', '#icon']} );
 
     });
 
