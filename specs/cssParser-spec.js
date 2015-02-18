@@ -21,6 +21,8 @@ describe("cssParser", function(){
     ];
 
     expect(cssP.createRules()).toEqual(rules);
+    expect(declerationParser.getDeclerationsFrom).toHaveBeenCalledWith(css);
+    expect(selectorParser.getSelectorsFrom).toHaveBeenCalledWith(css);
   });
 
   it("should return an empty array when there are no rules", function() {
@@ -31,9 +33,11 @@ describe("cssParser", function(){
   });
 
   it("should call selector and decleration parser once for each rule", function(){
-    var css = 'h1 { font-size: 12px; }' +
-              'div { display: none; position: absolute; }' +
-              '.header { float: right; }';
+    var ruleOne = 'h1 { font-size: 12px; }';
+    var ruleTwo = 'div { display: none; position: absolute; }';
+    var ruleThree = '.header { float: right; }';
+    var css = ruleOne + ruleTwo + ruleThree;
+
     var textStream = new TextStream(css);
     var selectorParser = jasmine.createSpyObj('selectorParser', ['getSelectorsFrom']);
     var declerationParser = jasmine.createSpyObj('declerationParser', ['getDeclerationsFrom']);
@@ -41,8 +45,13 @@ describe("cssParser", function(){
 
     cssP.createRules();
 
-    expect(selectorParser.getSelectorsFrom.callCount).toEqual(3);
-    expect(declerationParser.getDeclerationsFrom.callCount).toEqual(3);
+    expect(selectorParser.getSelectorsFrom).toHaveBeenCalledWith(ruleOne);
+    expect(selectorParser.getSelectorsFrom).toHaveBeenCalledWith(ruleTwo);
+    expect(selectorParser.getSelectorsFrom).toHaveBeenCalledWith(ruleThree);
+
+    expect(declerationParser.getDeclerationsFrom).toHaveBeenCalledWith(ruleOne);
+    expect(declerationParser.getDeclerationsFrom).toHaveBeenCalledWith(ruleTwo);
+    expect(declerationParser.getDeclerationsFrom).toHaveBeenCalledWith(ruleThree);
 
   });
 
