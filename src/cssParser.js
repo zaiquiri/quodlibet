@@ -8,10 +8,10 @@ function CssParser(textStream, selectorParser, declerationParser) {
 }
 
 CssParser.prototype.createRules = function(){
-  var wasACloseBracket = function(previous){return /}/.test(previous);};
+  var endOfRule = function(previous){return previous === '}';};
   var rules = [];
   while (!this.textStream.eof()){
-    var rule = new TextStream(this.textStream.popUntil(wasACloseBracket));
+    var rule = new TextStream(this.textStream.popUntil(endOfRule));
     rules.push({
       selectors: this.selectorParser.getSelectorsFrom(rule),
       declerations: this.declerationParser.getDeclerationsFrom(rule)
