@@ -7,16 +7,16 @@ describe("cssParser", function(){
     var textStream = new TextStream(css);
 
     var selectorParser = jasmine.createSpyObj('selectorParser', ['getSelectorsFrom']);
-    selectorParser.getSelectorsFrom.andReturn([{tagName: "h1"}]);
+    selectorParser.getSelectorsFrom.andReturn({tagName: "h1"});
 
     var declerationParser = jasmine.createSpyObj('declerationParser', ['getDeclerationsFrom']);
-    declerationParser.getDeclerationsFrom.andReturn([{name:"font-size", value: "12px"}]);
+    declerationParser.getDeclerationsFrom.andReturn({name:"font-size", value: "12px"});
 
     var cssP = new CssParser(textStream, selectorParser, declerationParser);
     var rules = [
       {
-        selectors: [{tagName: "h1"}],
-        declerations: [{name:"font-size", value: "12px"}]
+        selectors: {tagName: "h1"},
+        declerations: {name:"font-size", value: "12px"}
       }
     ];
 
