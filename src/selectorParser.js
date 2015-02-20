@@ -1,23 +1,45 @@
-var TextStream = require('../src/textStream.js');
+SelectorParser.prototype.getSelectorsFrom = function(rule){
+  rule = new this.TextStream(rule);
+
+  var selectors = rule.popUntil(this.declerationsBegin);
+  var selectorTokens = selectors.split(/\s/)
+    .filter(this.notAnEmptyString)
+    .map(function(z){return z.trim();});
+
+  return  {
+    tagName: selectorTokens.filter(this.isTag),
+    'class': selectorTokens.filter(this.isClass),
+    id: selectorTokens.filter(this.isId)
+  };
+};
+
+SelectorParser.prototype.declerationsBegin = function(previous, next){
+  return next === '{';
+};
+
+SelectorParser.prototype.isClass = function(token){
+  return /^\.[a-zA-Z\-\_]*$/.test(token);
+};
+
+SelectorParser.prototype.isId = function(token){
+  return /^\#[a-zA-Z\-\_]*$/.test(token);
+};
+
+SelectorParser.prototype.isTag = function(token){
+  return !this.isClass(token) && !this.isId(token);
+}.bind(SelectorParser.prototype);
+
+SelectorParser.prototype.notAnEmptyString = function(token){
+  return token !== '';
+};
+
+SelectorParser.prototype.trim = function(token){
+  return token !== '';
+};
 
 module.exports = SelectorParser;
 
-function SelectorParser(){}
+function SelectorParser(textStream){
+  this.TextStream = textStream;
+}
 
-SelectorParser.prototype.getSelectorsFrom = function(rule){
-  rule = new TextStream(rule);
-  var declerationsBegin = function(previous, next){ return next === '{'; };
-  var isClassSelector = function(token){return /^\.[a-zA-Z\-\_]*$/.test(token);};
-  var isId = function(token){ return /^\#[a-zA-Z\-\_]*$/.test(token); };
-  var isTag = function(token){ return !isClassSelector(token) && !isId(token);};
-  var emptyStrings = function(token){ return token !== '';};
-  var trim = function(token){return token.trim();};
-
-  var selectors = rule.popUntil(declerationsBegin);
-  var selectorTokens = selectors.split(/\s/).filter(emptyStrings).map(trim);
-  return  {
-    tagName: selectorTokens.filter(isTag),
-    'class': selectorTokens.filter(isClassSelector),
-    id: selectorTokens.filter(isId)
-  };
-};
