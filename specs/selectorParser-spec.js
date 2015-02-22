@@ -43,13 +43,13 @@ describe("SelectorParser", function() {
 
     });
 
-    xit("should return selector for rule with multiple selectors", function() {
+    it("should return selector for rule with multiple selectors", function() {
       var rule = 'h1 h2 .navbar .sidebar .footer #infobox #icon { font-style: bold; }';
       var selectorParser = new SelectorParser(TextStream);
 
       var selectors = selectorParser.getSelectorsFrom(rule);
 
-      expect(selectors).toEqual({tagName: ['h1', 'h2'], "class": ['.navbar', 'sidebar', '.footer'], id:['#infobox', '#icon']} );
+      expect(selectors).toEqual({tagName: ['h1', 'h2'], "class": ['.navbar', '.sidebar', '.footer'], id:['#infobox', '#icon']} );
 
     });
 
